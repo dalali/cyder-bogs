@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CYDER-BOGS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <canvas id="game" role="img" aria-label="Cyder-Bogs game canvas"></canvas>
+
+  <!-- 1. constants and config first -->
+  <script src="js/core/constants.js"></script>
+  <script src="js/core/config.js"></script>
+  <script src="js/core/utils.js"></script>
+
+  <!-- 2. core systems -->
+  <script src="js/core/states.js"></script>
+  <script src="js/core/input.js"></script>
+  <script src="js/core/camera.js"></script>
+  <script src="js/core/save.js"></script>
+
+  <!-- 3. world -->
+  <script src="js/world/tilemap.js"></script>
+  <script src="js/world/collision.js"></script>
+  <script src="js/world/maps/mission1.js"></script>
+  <script src="js/world/maps/mission2.js"></script>
+  <script src="js/world/maps/mission3.js"></script>
+  <script src="js/world/maps/mission4.js"></script>
+  <script src="js/world/maps/mission5.js"></script>
+
+  <!-- 4. data -->
+  <script src="js/data/missions.js"></script>
+  <script src="js/data/shop.js"></script>
+
+  <!-- 5. entities and systems -->
+  <script src="js/entities/entity.js"></script>
+  <script src="js/entities/particle.js"></script>
+  <script src="js/entities/pickup.js"></script>
+  <script src="js/entities/projectile.js"></script>
+  <script src="js/systems/weapons.js"></script>
+  <script src="js/systems/ai.js"></script>
+  <script src="js/systems/objectives.js"></script>
+  <script src="js/entities/player.js"></script>
+  <script src="js/entities/enemy.js"></script>
+
+  <!-- 6. render -->
+  <script src="js/render/sprites.js"></script>
+  <script src="js/render/tiles.js"></script>
+  <script src="js/render/hud.js"></script>
+  <script src="js/render/ui.js"></script>
+  <script src="js/render/renderer.js"></script>
+
+  <!-- 7. screens -->
+  <script src="js/screens/screen.js"></script>
+  <script src="js/screens/titleScreen.js"></script>
+  <script src="js/screens/briefingScreen.js"></script>
+  <script src="js/screens/playScreen.js"></script>
+  <script src="js/screens/missionCompleteScreen.js"></script>
+  <script src="js/screens/missionFailedScreen.js"></script>
+  <script src="js/screens/shopScreen.js"></script>
+  <script src="js/screens/victoryScreen.js"></script>
+
+  <!-- 8. game and bootstrap -->
+  <script src="js/core/loop.js"></script>
+  <script src="js/core/game.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
