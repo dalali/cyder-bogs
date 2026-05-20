@@ -74,6 +74,7 @@ CB.PlayScreen = {
       screenShake: 0,
       creditsToAdd: 0,
       _bossSpawned: bossSpawned,
+      lastEnemyFireTime: 0,
     };
   },
 
@@ -283,7 +284,7 @@ CB.PlayScreen = {
     const w = CB.PlayScreen.world;
     if (!w) return [];
     const aliveEnemies = w.enemies.filter(e => !e.dead);
-    const stateCounts = { IDLE: 0, PATROL: 0, ALERT: 0, CHASE: 0, ATTACK: 0 };
+    const stateCounts = { IDLE: 0, PATROL: 0, ALERT: 0, CHASE: 0, ATTACK: 0, INVESTIGATE: 0, RETREAT: 0 };
     for (const e of aliveEnemies) stateCounts[e.ai.state] = (stateCounts[e.ai.state] || 0) + 1;
     const p = w.player;
     const elapsed = Math.floor((Date.now() - w.stats.startTime) / 1000);
@@ -295,7 +296,7 @@ CB.PlayScreen = {
       `Player: x=${Math.floor(p.x)} y=${Math.floor(p.y)} hp=${p.hp} armor=${p.armor}`,
       `Credits: ${p.credits}`,
       `Mission: ${w.mission.id}  Time: ${CB.Utils.formatTime(elapsed)}`,
-      `AI: idle=${stateCounts.IDLE} patrol=${stateCounts.PATROL} chase=${stateCounts.CHASE} attack=${stateCounts.ATTACK}`,
+      `AI: idle=${stateCounts.IDLE} patrol=${stateCounts.PATROL} chase=${stateCounts.CHASE} atk=${stateCounts.ATTACK} inv=${stateCounts.INVESTIGATE} ret=${stateCounts.RETREAT}`,
       `Shake: ${w.screenShake.toFixed(2)}`,
     ];
   },

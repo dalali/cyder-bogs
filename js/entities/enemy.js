@@ -31,6 +31,11 @@ CB.Enemy = {
         attackRange: def.attackRange,
         breakRange: def.breakRange,
         alertCueRemaining: 0,
+        fireDelay: 0,
+        lastKnownX: undefined,
+        lastKnownY: undefined,
+        // Coward flag: 30% of grunts flee before engaging
+        isCoward: (subtype === 'grunt') ? (Math.random() < 0.3) : false,
         // Boss-specific
         weaponMode: 'rocket',
         modeTimer: 4,
