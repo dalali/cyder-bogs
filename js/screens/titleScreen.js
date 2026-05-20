@@ -5,6 +5,9 @@ CB.TitleScreen = {
   _focusedIndex: 0,
   _hasSave: false,
 
+  // Difficulty order for cycling
+  _diffOrder: ['EASY', 'NORMAL', 'HARD'],
+
   enter(game) {
     CB.TitleScreen._hasSave = CB.Save.exists();
     CB.TitleScreen._focusedIndex = 0;
@@ -43,6 +46,13 @@ CB.TitleScreen = {
         },
       },
     ];
+  },
+
+  _cycleDifficulty(dir) {
+    const order = CB.TitleScreen._diffOrder;
+    const idx = order.indexOf(CB.currentDifficulty);
+    const next = ((idx + dir) % order.length + order.length) % order.length;
+    CB.currentDifficulty = order[next];
   },
 
   update(dt, game) {},
@@ -89,6 +99,35 @@ CB.TitleScreen = {
       btnY += btnH + 12;
     });
 
+    // Difficulty selector (below buttons)
+    const diffY = btnY + 20;
+    const diff = CB.DIFFICULTY[CB.currentDifficulty];
+    const diffColors = { EASY: '#44CC44', NORMAL: '#FFCC00', HARD: '#FF4444' };
+
+    ctx.font = '8px "Press Start 2P", monospace';
+    ctx.textAlign = 'center';
+    ctx.fillStyle = C.TEXT_DIM;
+    ctx.fillText('DIFFICULTY', W / 2, diffY);
+
+    // Left arrow
+    ctx.fillStyle = C.TEXT_PRIMARY;
+    ctx.fillText('<', W / 2 - 80, diffY + 22);
+
+    // Difficulty label (colored)
+    ctx.fillStyle = diffColors[CB.currentDifficulty] || C.TEXT_PRIMARY;
+    ctx.font = '10px "Press Start 2P", monospace';
+    ctx.fillText(diff.label, W / 2, diffY + 22);
+
+    // Right arrow
+    ctx.fillStyle = C.TEXT_PRIMARY;
+    ctx.font = '8px "Press Start 2P", monospace';
+    ctx.fillText('>', W / 2 + 80, diffY + 22);
+
+    // Hint
+    ctx.font = '7px "Press Start 2P", monospace';
+    ctx.fillStyle = C.TEXT_DIM;
+    ctx.fillText('LEFT/RIGHT to change', W / 2, diffY + 40);
+
     // Version
     ctx.font = '8px "Press Start 2P", monospace';
     ctx.textAlign = 'right';
@@ -134,6 +173,12 @@ CB.TitleScreen = {
       case 'S':
         CB.TitleScreen._focusedIndex = Math.min(CB.TitleScreen._buttons.length - 1, CB.TitleScreen._focusedIndex + 1);
         break;
+      case 'ArrowLeft':
+        CB.TitleScreen._cycleDifficulty(-1);
+        break;
+      case 'ArrowRight':
+        CB.TitleScreen._cycleDifficulty(1);
+        break;
       case 'Enter':
       case ' ':
         CB.TitleScreen._buttons[CB.TitleScreen._focusedIndex].action();
@@ -162,6 +207,18 @@ CB.TitleScreen = {
       }
       btnY += btnH + 12;
     });
+
+    // Click left/right arrows for difficulty
+    const diffY = btnY + 20;
+    const W = CB.CANVAS_W;
+    // Left arrow zone
+    if (x >= W / 2 - 100 && x <= W / 2 - 50 && y >= diffY + 10 && y <= diffY + 35) {
+      CB.TitleScreen._cycleDifficulty(-1);
+    }
+    // Right arrow zone
+    if (x >= W / 2 + 50 && x <= W / 2 + 100 && y >= diffY + 10 && y <= diffY + 35) {
+      CB.TitleScreen._cycleDifficulty(1);
+    }
   },
 
   onMouseMove() {},

@@ -82,14 +82,19 @@ CB.Weapons = {
     owner.weaponCooldown = 1 / eDef.weaponRate;
 
     let angle = targetAngle;
-    // Apply accuracy multiplier from difficulty
+    // Apply accuracy multiplier from difficulty — only if enemy has a spread defined
     const diffAccuracy = CB.currentDifficulty
       ? (CB.DIFFICULTY[CB.currentDifficulty].enemyAccuracy || 1)
       : 1;
-    const baseSpread = eDef.weaponSpread || (8 * Math.PI / 180);
-    // Lower accuracy = more spread. At accuracy=1: no extra spread. At 0.7: bigger jitter.
-    const accuracySpread = baseSpread * (2 - diffAccuracy);
-    angle += (Math.random() * 2 - 1) * accuracySpread;
+    if (eDef.weaponSpread) {
+      // Higher accuracy = less spread; at EASY (0.7) spread is wider
+      const accuracySpread = eDef.weaponSpread * (2 - diffAccuracy);
+      angle += (Math.random() * 2 - 1) * accuracySpread;
+    } else {
+      // Enemies without explicit spread still get a small jitter scaled by difficulty
+      const baseJitter = 3 * Math.PI / 180; // 3 degrees base jitter
+      angle += (Math.random() * 2 - 1) * baseJitter * (2 - diffAccuracy);
+    }
 
     // Berserker: melee only — no projectile
     if (eDef.weapon === 'melee') return false;
