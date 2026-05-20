@@ -198,13 +198,7 @@ CB.Weapons = {
     world.projectiles.push(p);
   },
 
-  computeAimAngle(owner, world) {
-    if (owner.type === 'player') {
-      return Math.atan2(
-        CB.Input.mouse.worldY - owner.y,
-        CB.Input.mouse.worldX - owner.x
-      );
-    }
+  computeAimAngle(owner) {
     return owner.angle;
   },
 

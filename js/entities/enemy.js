@@ -232,7 +232,7 @@ CB.Enemy = {
     ctx.translate(sx, sy);
     ctx.rotate(enemy.angle);
 
-    CB.Sprites.drawEnemy(ctx, enemy.subtype, 0, 0);
+    CB.Sprites.drawEnemy(ctx, enemy.subtype, 0, 0, 0);
 
     ctx.restore();
 
