@@ -124,13 +124,16 @@ CB.ShopScreen = {
     ctx.textAlign = 'left';
     if (w) {
       const def = CB.WEAPON_DEFS[w.kind];
+      if (!def) { ctx.fillStyle = C.TEXT_DIM; ctx.fillText(`${i + 1}  ???`, x + 6, y + 20); }
+      else {
       ctx.fillStyle = C.TEXT_PRIMARY;
       ctx.fillText(`${i + 1}  ${def.name}`, x + 6, y + 20);
       ctx.fillStyle = C.AMMO_TEXT;
       ctx.fillText(`${w.ammo}/${def.ammoMax} ammo`, x + 6, y + 38);
+      }
 
       // Sell button (not for pistol)
-      if (def.sellable) {
+      if (def && def.sellable) {
         const sellValue = Math.floor(def.cost / 2);
         const sellRect = { x: x + 4, y: y + 48, w: slotW - 8, h: 16 };
         CB.ShopScreen._loadoutRects.push({ rect: sellRect, slotIndex: i, action: 'sell' });

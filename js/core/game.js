@@ -141,12 +141,30 @@ CB.Game = {
 
   // Load save into playerState
   loadSave(saveData) {
-    CB.Game.playerState.missionIndex = saveData.missionIndex || 0;
-    CB.Game.playerState.credits = saveData.credits || 0;
-    CB.Game.playerState.armor = saveData.armor || 0;
-    CB.Game.playerState.weapons = saveData.weapons || [{ kind: 'pistol', ammo: 30 }, null, null];
-    CB.Game.playerState.activeSlot = saveData.activeSlot || 0;
-    if (saveData.stats) {
+    const validKinds = new Set(Object.keys(CB.WEAPON_DEFS || {}));
+
+    // Clamp missionIndex to valid range
+    const rawIdx = typeof saveData.missionIndex === 'number' ? saveData.missionIndex : 0;
+    CB.Game.playerState.missionIndex = Math.max(0, Math.min(Math.floor(rawIdx), CB.MISSION_DEFS.length - 1));
+
+    CB.Game.playerState.credits = Math.max(0, Math.floor(saveData.credits || 0));
+    CB.Game.playerState.armor = Math.max(0, Math.min(Math.floor(saveData.armor || 0), 100));
+
+    // Validate each weapon slot — reject unknown kinds
+    const rawWeapons = Array.isArray(saveData.weapons) ? saveData.weapons : [];
+    CB.Game.playerState.weapons = [0, 1, 2].map(i => {
+      const w = rawWeapons[i];
+      if (!w || !validKinds.has(w.kind)) return (i === 0) ? { kind: 'pistol', ammo: 30, cooldown: 0 } : null;
+      return { kind: w.kind, ammo: Math.max(0, Math.floor(w.ammo || 0)), cooldown: 0 };
+    });
+
+    const rawSlot = typeof saveData.activeSlot === 'number' ? saveData.activeSlot : 0;
+    CB.Game.playerState.activeSlot = Math.max(0, Math.min(Math.floor(rawSlot), 2));
+    if (!CB.Game.playerState.weapons[CB.Game.playerState.activeSlot]) {
+      CB.Game.playerState.activeSlot = 0;
+    }
+
+    if (saveData.stats && typeof saveData.stats === 'object') {
       CB.Game.campaignStats = Object.assign({}, saveData.stats);
     }
   },
