@@ -11,6 +11,8 @@ CB.Input = {
     left: false, right: false,
     leftPressed: false, rightPressed: false,
     wheel: 0,
+    // Track recent mouse movement for WASD-aim vs mouse-aim switching
+    lastMoveTime: 0,
   },
 
   BIND: {
@@ -22,6 +24,7 @@ CB.Input = {
     weapon1:   ['1'],
     weapon2:   ['2'],
     weapon3:   ['3'],
+    strafe:    ['Shift'],
     pause:     ['Escape'],
     debug:     ['`'],
   },
@@ -47,8 +50,14 @@ CB.Input = {
 
     canvas.addEventListener('mousemove', (e) => {
       const rect = canvas.getBoundingClientRect();
-      CB.Input.mouse.x = (e.clientX - rect.left) * (canvas.width / rect.width);
-      CB.Input.mouse.y = (e.clientY - rect.top) * (canvas.height / rect.height);
+      const newX = (e.clientX - rect.left) * (canvas.width / rect.width);
+      const newY = (e.clientY - rect.top) * (canvas.height / rect.height);
+      // Only record movement if mouse actually moved (avoids jitter)
+      if (Math.abs(newX - CB.Input.mouse.x) > 1 || Math.abs(newY - CB.Input.mouse.y) > 1) {
+        CB.Input.mouse.lastMoveTime = Date.now();
+      }
+      CB.Input.mouse.x = newX;
+      CB.Input.mouse.y = newY;
     });
 
     canvas.addEventListener('mousedown', (e) => {
@@ -73,6 +82,11 @@ CB.Input = {
     }, { passive: false });
 
     canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+  },
+
+  // Returns true if mouse was moved within the last 1.5 seconds
+  isMouseAiming() {
+    return (Date.now() - CB.Input.mouse.lastMoveTime) < 1500;
   },
 
   isDown(action) {
