@@ -41,6 +41,13 @@ CB.Projectile = {
 
         // Hit!
         e.hp -= p.damage;
+
+        // Flamethrower: ignite the enemy
+        if (p.isFlame) {
+          e.onFire = true;
+          e.fireTicks = 3.0;
+        }
+
         if (e.hp <= 0) {
           CB.Enemy.onKill(e, world);
         } else {

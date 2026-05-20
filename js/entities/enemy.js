@@ -56,6 +56,25 @@ CB.Enemy = {
     if (enemy.dead) return;
     enemy.age += dt;
 
+    // Fire status effect: 8 damage/0.3s, slows by 30%
+    if (enemy.onFire) {
+      enemy.fireTicks -= dt;
+      enemy.fireTimer = (enemy.fireTimer || 0) + dt;
+      if (enemy.fireTimer >= 0.3) {
+        enemy.fireTimer -= 0.3;
+        enemy.hp -= 8;
+        if (enemy.hp <= 0) {
+          CB.Enemy.onKill(enemy, world);
+          return;
+        }
+      }
+      if (enemy.fireTicks <= 0) {
+        enemy.onFire = false;
+        enemy.fireTicks = 0;
+        enemy.fireTimer = 0;
+      }
+    }
+
     if (enemy.subtype === 'boss') {
       CB.Enemy._updateBoss(enemy, dt, world, player);
     } else {
@@ -180,6 +199,11 @@ CB.Enemy = {
     CB.Sprites.drawEnemy(ctx, enemy.subtype, 0, 0);
 
     ctx.restore();
+
+    // Fire effect: orange/red animated particles around burning enemy
+    if (enemy.onFire) {
+      CB.Sprites.drawFireEffect(ctx, sx, sy, enemy.age);
+    }
 
     // Boss HP bar
     if (enemy.subtype === 'boss') {

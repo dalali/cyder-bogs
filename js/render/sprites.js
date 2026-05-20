@@ -39,6 +39,31 @@ CB.Sprites = {
     ctx.restore();
   },
 
+  // Draw animated fire particles around a burning enemy (cx/cy = screen center)
+  drawFireEffect(ctx, cx, cy, age) {
+    const t = age * 8; // animation speed
+    ctx.save();
+    ctx.translate(cx, cy);
+    // Draw 6 fire particles at varying positions using sin/cos for animation
+    const colors = ['#FF6600', '#FF3300', '#FF9900', '#FFAA00'];
+    for (let i = 0; i < 6; i++) {
+      const phase = t + i * (Math.PI * 2 / 6);
+      const r = 8 + Math.sin(phase * 1.3) * 3;
+      const px = Math.cos(phase) * r;
+      const py = Math.sin(phase) * r - Math.abs(Math.sin(phase * 2)) * 4;
+      const sz = 2 + Math.abs(Math.sin(phase * 2.1)) * 3;
+      ctx.fillStyle = colors[i % colors.length];
+      ctx.globalAlpha = 0.7 + Math.sin(phase * 3) * 0.3;
+      ctx.fillRect(px - sz / 2, py - sz / 2, sz, sz);
+    }
+    // Center flicker
+    ctx.globalAlpha = 0.5 + Math.sin(t * 2) * 0.3;
+    ctx.fillStyle = '#FFFF44';
+    ctx.fillRect(-2, -2, 4, 4);
+    ctx.globalAlpha = 1;
+    ctx.restore();
+  },
+
   // Draw enemy sprite at cx, cy (relative to entity center, pre-translated & rotated)
   drawEnemy(ctx, subtype, cx, cy) {
     ctx.save();

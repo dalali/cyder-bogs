@@ -226,7 +226,9 @@ CB.AI = {
 
   _moveTowardWithSteering(enemy, tx, ty, dt, world) {
     const baseAngle = Math.atan2(ty - enemy.y, tx - enemy.x);
-    const speed = CB.ENEMY_DEFS[enemy.subtype] ? CB.ENEMY_DEFS[enemy.subtype].moveSpeed : 60;
+    let speed = CB.ENEMY_DEFS[enemy.subtype] ? CB.ENEMY_DEFS[enemy.subtype].moveSpeed : 60;
+    // Fire slows enemy by 30%
+    if (enemy.onFire) speed *= 0.7;
     const tryAngles = [0, Math.PI / 4, -Math.PI / 4, Math.PI / 2, -Math.PI / 2];
 
     for (const offset of tryAngles) {
