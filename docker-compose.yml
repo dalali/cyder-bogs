@@ -3,5 +3,5 @@ services:
     build: .
     container_name: cyder-bogs
     ports:
-      - "8080:80"
+      - "${PORT:-8090}:80"
     restart: unless-stopped

@@ -2,7 +2,7 @@
 set -euo pipefail
 
 DIR="$(cd "$(dirname "$0")" && pwd)"
-PORT=8080
+PORT="${PORT:-8090}"
 
 _build()   { docker compose -f "$DIR/docker-compose.yml" build; }
 _start()   { docker compose -f "$DIR/docker-compose.yml" up -d; echo "Running at http://localhost:$PORT"; }
