@@ -17,8 +17,14 @@ CB.Projectile = {
     const newY = p.y + dy;
     const step = Math.sqrt(dx * dx + dy * dy);
 
-    // Wall collision — check destination tile
-    if (world.tilemap.isSolidAtWorld(newX, newY)) {
+    // Wall collision — check all 4 corners of projectile bounding box
+    const hw = (p.w || 4) / 2;
+    const hh = (p.h || 4) / 2;
+    const wallHit = world.tilemap.isSolidAtWorld(newX - hw, newY - hh)
+      || world.tilemap.isSolidAtWorld(newX + hw, newY - hh)
+      || world.tilemap.isSolidAtWorld(newX - hw, newY + hh)
+      || world.tilemap.isSolidAtWorld(newX + hw, newY + hh);
+    if (wallHit) {
       if (p.splashRadius > 0) {
         CB.Weapons.explode(p, world);
       }

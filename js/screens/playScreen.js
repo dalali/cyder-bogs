@@ -103,10 +103,15 @@ CB.PlayScreen = {
       game.debug = !game.debug;
     }
 
-    // Mouse wheel weapon switch
+    // Mouse wheel weapon switch — skip empty slots
     if (CB.Input.mouse.wheel !== 0) {
       const dir = CB.Input.mouse.wheel > 0 ? 1 : -1;
-      player.activeSlot = ((player.activeSlot + dir) % 3 + 3) % 3;
+      let next = player.activeSlot;
+      for (let i = 0; i < 3; i++) {
+        next = ((next + dir) % 3 + 3) % 3;
+        if (player.weapons[next]) break;
+      }
+      player.activeSlot = next;
     }
 
     // 1. Player update

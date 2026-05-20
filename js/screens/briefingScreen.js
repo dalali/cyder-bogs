@@ -112,10 +112,13 @@ CB.BriefingScreen = {
       ctx.textAlign = 'left';
       if (w) {
         const def = CB.WEAPON_DEFS[w.kind];
+        if (!def) { ctx.fillStyle = C.TEXT_LABEL; ctx.fillText('???', sx + 4, y + 16); }
+        else {
         ctx.fillStyle = C.TEXT_PRIMARY;
         ctx.fillText(def.name, sx + 4, y + 16);
         ctx.fillStyle = C.AMMO_TEXT;
         ctx.fillText(`${w.ammo}/${def.ammoMax}`, sx + 4, y + 32);
+        }
       } else {
         ctx.fillStyle = C.TEXT_DIM;
         ctx.fillText('--- EMPTY ---', sx + 4, y + 24);

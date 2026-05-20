@@ -561,20 +561,23 @@ CB.ShopScreen = {
     if (!modal || modal.selectedSlot === null) return;
 
     const slotIndex = modal.selectedSlot;
-    const w = ps.weapons[slotIndex];
-    if (w) {
-      // Sell existing
-      const def = CB.WEAPON_DEFS[w.kind];
-      if (def && def.sellable) {
-        ps.credits += Math.floor(def.cost / 2);
-      }
-    }
-    // Buy new
     const newDef = CB.WEAPON_DEFS[modal.pendingKind];
-    if (ps.credits >= newDef.cost) {
-      ps.credits -= newDef.cost;
-      ps.weapons[slotIndex] = { kind: modal.pendingKind, ammo: newDef.ammoStart, cooldown: 0 };
+    if (!newDef) { CB.ShopScreen._modal = null; return; }
+
+    const w = ps.weapons[slotIndex];
+    const sellValue = (w && CB.WEAPON_DEFS[w.kind] && CB.WEAPON_DEFS[w.kind].sellable)
+      ? Math.floor(CB.WEAPON_DEFS[w.kind].cost / 2) : 0;
+
+    // Atomic: only proceed if player can afford it after selling the old one
+    if (ps.credits + sellValue < newDef.cost) {
+      CB.ShopScreen._modal = null;
+      return;
     }
+
+    ps.credits += sellValue;
+    ps.credits -= newDef.cost;
+    ps.weapons[slotIndex] = { kind: modal.pendingKind, ammo: newDef.ammoStart, cooldown: 0 };
+
     CB.ShopScreen._modal = null;
     game.saveProgress();
   },

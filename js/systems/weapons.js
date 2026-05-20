@@ -20,9 +20,11 @@ CB.Weapons = {
 
     switch (def.fireBehavior) {
       case 'single':
-      case 'pierce':
-        CB.Weapons._spawnProjectile(owner, def, angle, world);
+      case 'pierce': {
+        const jitter = def.spread ? (Math.random() * 2 - 1) * def.spread : 0;
+        CB.Weapons._spawnProjectile(owner, def, angle + jitter, world);
         break;
+      }
 
       case 'spread':
         for (let i = 0; i < def.pellets; i++) {
