@@ -75,6 +75,10 @@ CB.PlayScreen = {
       creditsToAdd: 0,
       _bossSpawned: bossSpawned,
       lastEnemyFireTime: 0,
+      // Combo tracking
+      combo: 0,
+      comboTimer: 0,
+      floatingTexts: [],
     };
   },
 
@@ -145,6 +149,21 @@ CB.PlayScreen = {
     for (const p of world.particles) {
       if (!p.dead) CB.Particle.update(p, dt);
     }
+
+    // 5b. Combo timer decay
+    if (world.comboTimer > 0) {
+      world.comboTimer -= dt;
+      if (world.comboTimer <= 0) {
+        world.combo = 0;
+        world.comboTimer = 0;
+      }
+    }
+
+    // 5c. Floating text update (age them out)
+    for (const ft of world.floatingTexts) {
+      ft.age += dt;
+    }
+    world.floatingTexts = world.floatingTexts.filter(ft => ft.age < ft.maxAge);
 
     // 6. Drain credits and kill count earned during combat
     if (world.creditsToAdd > 0) {

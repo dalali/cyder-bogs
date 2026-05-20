@@ -181,7 +181,43 @@ CB.Enemy = {
     // Credit award goes through world.creditsToAdd
     const def = CB.ENEMY_DEFS[enemy.subtype];
     if (def) {
-      world.creditsToAdd = (world.creditsToAdd || 0) + def.credits;
+      // Combo system: bonus credits based on current combo
+      let baseCredits = def.credits;
+
+      if (world.floatingTexts !== undefined) {
+        // Update combo
+        if (world.comboTimer > 0) {
+          world.combo = (world.combo || 0) + 1;
+        } else {
+          world.combo = 1;
+        }
+        world.comboTimer = 3.0;
+
+        // Apply combo multiplier: credits * (1 + 0.25 * (combo - 1))
+        const comboMult = 1 + 0.25 * (world.combo - 1);
+        const earnedCredits = Math.ceil(baseCredits * comboMult);
+        world.creditsToAdd = (world.creditsToAdd || 0) + earnedCredits;
+
+        // Floating text: "+Xcr"
+        world.floatingTexts.push({
+          x: enemy.x, y: enemy.y,
+          text: '+' + earnedCredits + 'cr',
+          age: 0, maxAge: 1.5,
+          color: '#FFCC00',
+        });
+
+        // Combo indicator if combo >= 2
+        if (world.combo >= 2) {
+          world.floatingTexts.push({
+            x: enemy.x, y: enemy.y - 18,
+            text: 'COMBO x' + world.combo + '!',
+            age: 0, maxAge: 1.5,
+            color: '#FF4444',
+          });
+        }
+      } else {
+        world.creditsToAdd = (world.creditsToAdd || 0) + baseCredits;
+      }
     }
 
     // Drop pickups
