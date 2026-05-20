@@ -236,11 +236,10 @@ CB.PlayScreen = {
 
     ctx.save();
     ctx.translate(shakeX, shakeY);
-
     CB.Renderer.render(ctx, world, world.objectives);
-    CB.HUD.draw(ctx, world.player, world.mission, world.stats, world.objectives);
-
     ctx.restore();
+
+    CB.HUD.draw(ctx, world.player, world.mission, world.stats, world.objectives);
 
     // Pause overlay
     if (CB.PlayScreen._paused) {

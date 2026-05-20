@@ -51,9 +51,6 @@ CB.Enemy = {
     if (enemy.dead) return;
     enemy.age += dt;
 
-    // Decrement weapon cooldown on the entity root level too
-    enemy.weaponCooldown = Math.max(0, enemy.weaponCooldown - dt);
-
     if (enemy.subtype === 'boss') {
       CB.Enemy._updateBoss(enemy, dt, world, player);
     } else {

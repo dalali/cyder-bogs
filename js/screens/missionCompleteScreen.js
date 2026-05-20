@@ -61,7 +61,7 @@ CB.MissionCompleteScreen = {
     ctx.fillText(`${kills} / ${total}`, lx + 200, ly);
     ctx.fillStyle = C.ACCENT_GOLD;
     ctx.textAlign = 'right';
-    ctx.fillText(`+${CB.Utils.formatNum(game.campaignStats.totalCreditsEarned)} cr`, W / 2 + 180, ly);
+    ctx.fillText(`+${CB.Utils.formatNum(killCredits)} cr`, W / 2 + 180, ly);
     ctx.textAlign = 'left';
     ly += lineH;
 
