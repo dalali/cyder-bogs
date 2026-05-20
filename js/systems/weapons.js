@@ -16,34 +16,56 @@ CB.Weapons = {
     slot.ammo--;
     slot.cooldown = 1 / def.fireRate;
 
+    // --- Escalating recoil for weapons with spread ---
+    let effectiveSpread = def.spread || 0;
+    if (def.spread > 0) {
+      const now = performance.now ? performance.now() / 1000 : Date.now() / 1000;
+      const BURST_PAUSE = 0.3; // seconds without firing = burst reset
+
+      if (!slot.lastFireTime || (now - slot.lastFireTime) > BURST_PAUSE) {
+        slot.burstShots = 0;
+      }
+      slot.lastFireTime = now;
+      slot.burstShots = (slot.burstShots || 0) + 1;
+
+      // Each consecutive shot adds 20% spread, cap at 3x base
+      const multiplier = Math.min(1 + 0.2 * (slot.burstShots - 1), 3.0);
+      effectiveSpread = def.spread * multiplier;
+    }
+
     const angle = CB.Weapons.computeAimAngle(owner, world);
 
     switch (def.fireBehavior) {
       case 'single':
       case 'pierce': {
-        const jitter = def.spread ? (Math.random() * 2 - 1) * def.spread : 0;
+        const jitter = effectiveSpread ? (Math.random() * 2 - 1) * effectiveSpread : 0;
         CB.Weapons._spawnProjectile(owner, def, angle + jitter, world);
         break;
       }
 
       case 'spread':
         for (let i = 0; i < def.pellets; i++) {
-          const spread = (Math.random() * 2 - 1) * def.spread;
+          const spread = (Math.random() * 2 - 1) * effectiveSpread;
           CB.Weapons._spawnProjectile(owner, def, angle + spread, world);
         }
         break;
 
       case 'continuous': {
         // Flamethrower — spread per flame particle
-        const spread = (Math.random() * 2 - 1) * def.spread;
+        const spread = (Math.random() * 2 - 1) * effectiveSpread;
         CB.Weapons._spawnProjectile(owner, def, angle + spread, world);
         break;
       }
     }
 
-    // Screen shake for rockets and grenades
-    if (def.shake && world.screenShake !== undefined) {
+    // Screen shake
+    if (def.shake && def.shake > 0 && world.screenShake !== undefined) {
       world.screenShake = Math.max(world.screenShake || 0, def.shake);
+    }
+
+    // Sound-triggered AI wakeup: loud weapons (shake > 0 or splashRadius > 0)
+    if ((def.shake > 0 || def.splashRadius > 0) && world && CB.AI) {
+      CB.AI.alertNearby(owner.x, owner.y, 300, world);
     }
 
     return true;
@@ -60,15 +82,26 @@ CB.Weapons = {
     owner.weaponCooldown = 1 / eDef.weaponRate;
 
     let angle = targetAngle;
-    if (eDef.weaponSpread) {
-      angle += (Math.random() * 2 - 1) * eDef.weaponSpread;
-    }
+    // Apply accuracy multiplier from difficulty
+    const diffAccuracy = CB.currentDifficulty
+      ? (CB.DIFFICULTY[CB.currentDifficulty].enemyAccuracy || 1)
+      : 1;
+    const baseSpread = eDef.weaponSpread || (8 * Math.PI / 180);
+    // Lower accuracy = more spread. At accuracy=1: no extra spread. At 0.7: bigger jitter.
+    const accuracySpread = baseSpread * (2 - diffAccuracy);
+    angle += (Math.random() * 2 - 1) * accuracySpread;
 
     // Berserker: melee only — no projectile
     if (eDef.weapon === 'melee') return false;
 
     // Boss alternates modes
     let dmg = eDef.weaponDmg;
+    // Apply difficulty damage multiplier
+    const damageMult = CB.currentDifficulty
+      ? (CB.DIFFICULTY[CB.currentDifficulty].enemyDamageMult || 1)
+      : 1;
+    dmg = Math.ceil(dmg * damageMult);
+
     let speed = 400;
     let range = 350;
     let projKind = CB.PK.BULLET_YELLOW;
@@ -77,14 +110,14 @@ CB.Weapons = {
     if (owner.subtype === 'boss') {
       if (owner.ai.weaponMode === 'rocket') {
         speed = 280; range = 600; projKind = CB.PK.ROCKET_PROJ;
-        projW = 6; projH = 10; dmg = 60;
+        projW = 6; projH = 10; dmg = Math.ceil(60 * damageMult);
         // splash
         CB.Weapons._spawnEnemyProjectile(owner, angle, dmg, speed, range, projKind, projW, projH, 48, 30, world);
         return true;
       } else {
         // MG burst
         speed = 500; range = 400; projKind = CB.PK.BULLET_MG;
-        projW = 3; projH = 3; dmg = 12;
+        projW = 3; projH = 3; dmg = Math.ceil(12 * damageMult);
       }
     } else if (owner.subtype === 'sniper') {
       speed = 900; range = 450; projKind = CB.PK.SNIPER_BEAM;
@@ -147,6 +180,8 @@ CB.Weapons = {
       dead: false,
       age: 0,
       angle: angle,
+      // Tag flamethrower projectiles
+      isFlame: (def.fireBehavior === 'continuous'),
     };
 
     // Flamethrower: short lifetime
@@ -181,6 +216,10 @@ CB.Weapons = {
             CB.Enemy.onKill(e, world);
           }
         }
+      }
+      // Also alert nearby enemies from the explosion sound
+      if (CB.AI) {
+        CB.AI.alertNearby(p.x, p.y, 300, world);
       }
     } else {
       // Enemy rocket/splash hits player

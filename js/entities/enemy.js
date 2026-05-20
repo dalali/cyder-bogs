@@ -62,13 +62,22 @@ CB.Enemy = {
       CB.AI.update(enemy, dt, world, player);
     }
 
-    // Berserker melee attack
+    // Berserker melee attack with knockback
     if (enemy.subtype === 'berserker' && enemy.ai.state === 'ATTACK') {
       if (enemy.weaponCooldown <= 0) {
         const d = CB.Utils.dist(enemy, player);
         if (d < enemy.ai.attackRange) {
-          CB.Player.applyDamage(player, CB.ENEMY_DEFS.berserker.weaponDmg);
+          // Apply difficulty damage mult
+          const damageMult = CB.currentDifficulty
+            ? (CB.DIFFICULTY[CB.currentDifficulty].enemyDamageMult || 1)
+            : 1;
+          CB.Player.applyDamage(player, Math.ceil(CB.ENEMY_DEFS.berserker.weaponDmg * damageMult));
           enemy.weaponCooldown = 1 / CB.ENEMY_DEFS.berserker.weaponRate;
+
+          // Knockback: push player away from berserker
+          const angle = Math.atan2(player.y - enemy.y, player.x - enemy.x);
+          player.vx = (player.vx || 0) + Math.cos(angle) * 120;
+          player.vy = (player.vy || 0) + Math.sin(angle) * 120;
         }
       }
     }

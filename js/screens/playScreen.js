@@ -166,9 +166,10 @@ CB.PlayScreen = {
     // 8. Camera follow
     CB.Camera.follow(world.camera, player, world.tilemap.pixelWidth(), world.tilemap.pixelHeight());
 
-    // 9. Screen shake decay
+    // 9. Screen shake decay — multiplicative so bigger shakes last longer
     if (world.screenShake > 0) {
-      world.screenShake = Math.max(0, world.screenShake - dt * 10);
+      world.screenShake *= Math.pow(0.82, dt * 60);
+      if (world.screenShake < 0.05) world.screenShake = 0;
     }
 
     // 10. Cull dead entities

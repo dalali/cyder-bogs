@@ -9,6 +9,7 @@ CB.WEAPON_DEFS = {
     projectileKind: CB.PK.BULLET_YELLOW,
     fireBehavior: 'single',
     projW: 4, projH: 4,
+    shake: 0,
     ammoPerPurchase: 30, ammoCost: 50,
   },
   machinegun: {
@@ -18,6 +19,7 @@ CB.WEAPON_DEFS = {
     projectileKind: CB.PK.BULLET_MG,
     fireBehavior: 'single',
     projW: 3, projH: 3,
+    shake: 0,
     ammoPerPurchase: 100, ammoCost: 120,
   },
   shotgun: {
@@ -27,6 +29,7 @@ CB.WEAPON_DEFS = {
     projectileKind: CB.PK.BULLET_ORANGE,
     fireBehavior: 'spread',
     projW: 4, projH: 4,
+    shake: 1,
     ammoPerPurchase: 20, ammoCost: 80,
   },
   flamer: {
@@ -36,6 +39,7 @@ CB.WEAPON_DEFS = {
     projectileKind: CB.PK.FLAME,
     fireBehavior: 'continuous',
     projW: 6, projH: 6,
+    shake: 0,
     ammoPerPurchase: 60, ammoCost: 150,
   },
   rocket: {
@@ -45,7 +49,7 @@ CB.WEAPON_DEFS = {
     projectileKind: CB.PK.ROCKET_PROJ,
     fireBehavior: 'single',
     projW: 6, projH: 10,
-    shake: 2,
+    shake: 6,
     ammoPerPurchase: 6, ammoCost: 200,
   },
   sniper: {
@@ -55,6 +59,7 @@ CB.WEAPON_DEFS = {
     projectileKind: CB.PK.SNIPER_BEAM,
     fireBehavior: 'pierce',
     projW: 2, projH: 16,
+    shake: 2,
     ammoPerPurchase: 10, ammoCost: 180,
   },
   grenade: {
@@ -64,7 +69,7 @@ CB.WEAPON_DEFS = {
     projectileKind: CB.PK.GRENADE_PROJ,
     fireBehavior: 'single',
     projW: 8, projH: 8,
-    shake: 2,
+    shake: 5,
     ammoPerPurchase: 8, ammoCost: 190,
   },
   laser: {
@@ -74,6 +79,7 @@ CB.WEAPON_DEFS = {
     projectileKind: CB.PK.LASER_BEAM,
     fireBehavior: 'single',
     projW: 2, projH: 24,
+    shake: 0,
     ammoPerPurchase: 80, ammoCost: 140,
   },
 };
@@ -167,3 +173,11 @@ CB.ARMOR_DEFS = [
   { name: 'LIGHT ARMOR', cost: 400, armorValue: 25 },
   { name: 'HEAVY ARMOR', cost: 900, armorValue: 50 },
 ];
+
+// Difficulty settings
+CB.DIFFICULTY = {
+  EASY:   { enemyDamageMult: 0.5,  enemyAccuracy: 0.7, detectionMult: 0.8, label: 'EASY' },
+  NORMAL: { enemyDamageMult: 1.0,  enemyAccuracy: 1.0, detectionMult: 1.0, label: 'NORMAL' },
+  HARD:   { enemyDamageMult: 1.5,  enemyAccuracy: 1.2, detectionMult: 1.3, label: 'HARD' },
+};
+CB.currentDifficulty = 'NORMAL';
