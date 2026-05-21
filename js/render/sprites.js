@@ -1,9 +1,55 @@
 window.CB = window.CB || {};
 
-// All sprites drawn facing RIGHT (positive X = front). ctx.rotate(angle) handles orientation.
+// Sprites drawn facing RIGHT (positive X = front). Caller does ctx.rotate(angle).
+// Style: chunky top-down soldiers matching original Cyberdogs aesthetic.
+// Player = blue body + orange head. Enemies = red/dark variants of same silhouette.
 
 CB.Sprites = {
 
+  // ── shared soldier silhouette ──────────────────────────────────────────────
+  // bodyColor, headColor, gunColor, dark = shadow/boot color
+  _drawSoldier(ctx, bodyColor, headColor, gunColor, dark, big) {
+    const s = big ? 1.4 : 1.0;  // scale factor for heavy/boss
+
+    // Boots (back, negative X)
+    ctx.fillStyle = dark;
+    ctx.fillRect(-9*s, -5*s, 4*s, 3*s);
+    ctx.fillRect(-9*s,  2*s, 4*s, 3*s);
+
+    // Body (solid rectangle — the uniform)
+    ctx.fillStyle = bodyColor;
+    ctx.fillRect(-8*s, -5*s, 13*s, 10*s);
+
+    // Belt line
+    ctx.fillStyle = dark;
+    ctx.fillRect(-8*s, -1*s, 13*s, 2*s);
+
+    // Gun hand (toward front)
+    ctx.fillStyle = dark;
+    ctx.fillRect( 4*s, -2*s, 3*s, 4*s);
+
+    // Gun barrel
+    ctx.fillStyle = gunColor;
+    ctx.fillRect( 6*s, -1*s, 7*s, 2*s);
+
+    // Head — large round circle, the most recognisable feature
+    ctx.fillStyle = headColor;
+    ctx.beginPath();
+    ctx.arc(3*s, 0, 6*s, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Helmet top (darker band across top half of head)
+    ctx.fillStyle = dark;
+    ctx.beginPath();
+    ctx.arc(3*s, 0, 6*s, -Math.PI, 0);
+    ctx.fill();
+
+    // Eye glint
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(6*s, -1*s, 2*s, 2*s);
+  },
+
+  // ── player ────────────────────────────────────────────────────────────────
   drawPlayer(ctx, cx, cy, angle, flashRed) {
     ctx.save();
     ctx.translate(cx, cy);
@@ -11,236 +57,144 @@ CB.Sprites = {
 
     if (flashRed) {
       ctx.fillStyle = '#FF4444';
-      ctx.fillRect(-9, -6, 18, 12);
+      ctx.beginPath();
+      ctx.arc(0, 0, 10, 0, Math.PI * 2);
+      ctx.fill();
       ctx.restore();
       return;
     }
 
-    // Back leg (darker blue)
-    ctx.fillStyle = '#1a3a99';
-    ctx.fillRect(-8, 2, 6, 4);
-
-    // Front leg
-    ctx.fillStyle = '#1a3a99';
-    ctx.fillRect(-8, -6, 6, 4);
-
-    // Body — blue uniform
-    ctx.fillStyle = '#2255cc';
-    ctx.fillRect(-8, -5, 13, 10);
-
-    // Belt / chest band
-    ctx.fillStyle = '#112288';
-    ctx.fillRect(-8, -1, 13, 2);
-
-    // Gun arm (right side, front)
-    ctx.fillStyle = '#1a3a99';
-    ctx.fillRect(3, -2, 3, 4);
-
-    // Gun barrel — dark gray
-    ctx.fillStyle = '#222222';
-    ctx.fillRect(5, -1, 8, 2);
-    ctx.fillRect(6, 1, 3, 2);   // grip/stock
-
-    // Head — orange (iconic)
-    ctx.fillStyle = '#dd6622';
-    ctx.beginPath();
-    ctx.arc(4, 0, 5, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Helmet top — darker orange band
-    ctx.fillStyle = '#bb4400';
-    ctx.beginPath();
-    ctx.arc(4, 0, 5, -Math.PI * 0.85, 0.15);
-    ctx.lineTo(4, 0);
-    ctx.fill();
-
-    // Eye dot — white
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(7, -1, 2, 2);
+    // Blue uniform, orange head (matches original Cyberdogs player)
+    CB.Sprites._drawSoldier(ctx, '#2255cc', '#dd6622', '#111111', '#112288', false);
 
     ctx.restore();
   },
 
-  drawEnemy(ctx, subtype, cx, cy, angle) {
+  // ── enemies ───────────────────────────────────────────────────────────────
+  drawEnemy(ctx, subtype, cx, cy) {
     ctx.save();
     ctx.translate(cx, cy);
-    ctx.rotate(angle || 0);
 
     switch (subtype) {
 
-      case 'grunt': {
-        // Back legs
-        ctx.fillStyle = '#551100';
-        ctx.fillRect(-7, 2, 5, 4);
-        ctx.fillRect(-7, -6, 5, 4);
-        // Body — dark red uniform
-        ctx.fillStyle = '#882211';
-        ctx.fillRect(-7, -5, 11, 10);
-        // Belt
-        ctx.fillStyle = '#551100';
-        ctx.fillRect(-7, -1, 11, 2);
-        // Gun arm
-        ctx.fillStyle = '#661100';
-        ctx.fillRect(2, -2, 3, 4);
-        // Gun
-        ctx.fillStyle = '#1a1a1a';
-        ctx.fillRect(4, -1, 7, 2);
-        // Head — brighter red/orange
-        ctx.fillStyle = '#cc3311';
-        ctx.beginPath();
-        ctx.arc(3, 0, 5, 0, Math.PI * 2);
-        ctx.fill();
-        // Helmet stripe
-        ctx.fillStyle = '#881100';
-        ctx.beginPath();
-        ctx.arc(3, 0, 5, -Math.PI * 0.85, 0.15);
-        ctx.lineTo(3, 0);
-        ctx.fill();
+      case 'grunt':
+        // Same silhouette as player, dark red — classic Cyberdogs enemy look
+        CB.Sprites._drawSoldier(ctx, '#882211', '#cc3311', '#111111', '#441100', false);
         break;
-      }
 
       case 'heavy': {
-        // Larger armored soldier
-        // Legs
-        ctx.fillStyle = '#333333';
-        ctx.fillRect(-9, 3, 6, 5);
-        ctx.fillRect(-9, -8, 6, 5);
-        // Armored body
-        ctx.fillStyle = '#555555';
-        ctx.fillRect(-9, -6, 15, 12);
-        // Chest plate highlight
-        ctx.fillStyle = '#666666';
-        ctx.fillRect(-7, -5, 10, 4);
+        // Stockier armored variant — grey with red visor
+        const s = 1.25;
+        // Body
+        ctx.fillStyle = '#444444';
+        ctx.fillRect(-9*s, -5*s, 14*s, 10*s);
         // Shoulder pads
-        ctx.fillStyle = '#444444';
-        ctx.fillRect(-10, -6, 3, 5);
-        ctx.fillRect(-10, 1, 3, 5);
-        // Gun arm
-        ctx.fillStyle = '#444444';
-        ctx.fillRect(4, -3, 4, 6);
+        ctx.fillStyle = '#333333';
+        ctx.fillRect(-10*s, -6*s, 3*s, 5*s);
+        ctx.fillRect(-10*s,  1*s, 3*s, 5*s);
         // Heavy gun
         ctx.fillStyle = '#111111';
-        ctx.fillRect(6, -2, 9, 3);
-        ctx.fillRect(7, 1, 4, 3);
-        // Head — gray with dark visor
-        ctx.fillStyle = '#777777';
+        ctx.fillRect(4*s, -2*s, 3*s, 4*s);
+        ctx.fillRect(6*s, -1*s, 9*s, 3*s);
+        // Head — grey helmet, red visor slit
+        ctx.fillStyle = '#666666';
         ctx.beginPath();
-        ctx.arc(3, 0, 6, 0, Math.PI * 2);
+        ctx.arc(3*s, 0, 7*s, 0, Math.PI * 2);
         ctx.fill();
-        // Visor slit
-        ctx.fillStyle = '#cc3300';
-        ctx.fillRect(1, -2, 7, 2);
-        ctx.fillStyle = '#440000';
-        ctx.fillRect(2, -1, 5, 1);
+        ctx.fillStyle = '#333333';
+        ctx.beginPath();
+        ctx.arc(3*s, 0, 7*s, -Math.PI, 0);
+        ctx.fill();
+        ctx.fillStyle = '#cc2200';
+        ctx.fillRect(0*s, -2*s, 8*s, 3*s);
+        ctx.fillStyle = '#ff4400';
+        ctx.fillRect(1*s, -1*s, 6*s, 1*s);
         break;
       }
 
-      case 'sniper': {
-        // Lean frame
-        ctx.fillStyle = '#223311';
-        ctx.fillRect(-6, 2, 4, 4);
-        ctx.fillRect(-6, -6, 4, 4);
-        // Camo body (dark green)
-        ctx.fillStyle = '#334422';
-        ctx.fillRect(-6, -5, 10, 10);
-        // Camo patches
-        ctx.fillStyle = '#223311';
-        ctx.fillRect(-4, -4, 3, 3);
-        ctx.fillRect(1, 1, 3, 3);
-        // Long rifle
-        ctx.fillStyle = '#1a1a1a';
-        ctx.fillRect(3, -1, 13, 2);   // long barrel
-        ctx.fillRect(4, 1, 4, 2);     // stock
-        ctx.fillRect(10, -3, 2, 2);   // scope
-        // Head — dark camo
-        ctx.fillStyle = '#445533';
-        ctx.beginPath();
-        ctx.arc(3, 0, 4, 0, Math.PI * 2);
-        ctx.fill();
-        // Eye slit
-        ctx.fillStyle = '#ffdd00';
-        ctx.fillRect(5, -1, 3, 1);
+      case 'sniper':
+        // Dark camo green, same silhouette but with long rifle
+        CB.Sprites._drawSoldier(ctx, '#334422', '#445533', '#111111', '#1a2211', false);
+        // Extra long barrel override
+        ctx.fillStyle = '#111111';
+        ctx.fillRect(6, -1, 11, 2);   // longer than standard
+        ctx.fillRect(12, -3, 2, 2);   // scope
         break;
-      }
 
       case 'berserker': {
-        // Muscular, arms wide
+        // Bigger, red, arms wide — no gun, uses fists
+        const s = 1.15;
         ctx.fillStyle = '#660000';
-        ctx.fillRect(-7, 3, 5, 5);
-        ctx.fillRect(-7, -8, 5, 5);
-        // Shredded body
-        ctx.fillStyle = '#990000';
-        ctx.fillRect(-7, -6, 14, 12);
-        // Exposed muscle highlights
-        ctx.fillStyle = '#772200';
-        ctx.fillRect(-5, -5, 4, 4);
-        ctx.fillRect(3, 1, 4, 4);
-        // Arms spread wide (claws out)
+        ctx.fillRect(-8*s, -6*s, 14*s, 12*s);
+        ctx.fillStyle = '#440000';
+        ctx.fillRect(-8*s, -1*s, 14*s, 2*s);
+        // Wide arms with claws
         ctx.fillStyle = '#880000';
-        ctx.fillRect(-10, -3, 4, 3);
-        ctx.fillRect(-10, 0, 4, 3);
-        ctx.fillRect(6, -4, 4, 3);
-        ctx.fillRect(6, 1, 4, 3);
+        ctx.fillRect(-12*s, -3*s, 5*s, 3*s);
+        ctx.fillRect(-12*s,  0*s, 5*s, 3*s);
+        ctx.fillRect( 5*s, -4*s, 5*s, 3*s);
+        ctx.fillRect( 5*s,  1*s, 5*s, 3*s);
         // Claws
         ctx.fillStyle = '#ffccaa';
-        ctx.fillRect(-12, -3, 3, 2);
-        ctx.fillRect(-12, 1, 3, 2);
-        ctx.fillRect(9, -4, 3, 2);
-        ctx.fillRect(9, 1, 3, 2);
-        // Head — blood red
+        ctx.fillRect(-13*s, -3*s, 3*s, 2*s);
+        ctx.fillRect(-13*s,  1*s, 3*s, 2*s);
+        ctx.fillRect(9*s, -4*s, 3*s, 2*s);
+        ctx.fillRect(9*s,  1*s, 3*s, 2*s);
+        // Head — blood red, big, angry
         ctx.fillStyle = '#cc0000';
         ctx.beginPath();
-        ctx.arc(3, 0, 6, 0, Math.PI * 2);
+        ctx.arc(3*s, 0, 7*s, 0, Math.PI * 2);
         ctx.fill();
-        // Angry eyes
+        ctx.fillStyle = '#880000';
+        ctx.beginPath();
+        ctx.arc(3*s, 0, 7*s, -Math.PI, 0);
+        ctx.fill();
+        // Yellow eyes
         ctx.fillStyle = '#ffff00';
-        ctx.fillRect(1, -2, 3, 2);
-        ctx.fillRect(5, -2, 2, 2);
-        ctx.fillStyle = '#ff0000';
-        ctx.fillRect(2, -1, 2, 1);
-        ctx.fillRect(6, -1, 1, 1);
+        ctx.fillRect(0*s, -2*s, 3*s, 2*s);
+        ctx.fillRect(5*s, -2*s, 3*s, 2*s);
         break;
       }
 
       case 'boss': {
-        // Large mech/exosuit
+        // Large mech — black armoured exosuit
+        const s = 1.6;
         // Leg units
         ctx.fillStyle = '#111133';
-        ctx.fillRect(-13, 5, 8, 8);
-        ctx.fillRect(-13, -13, 8, 8);
-        // Main body — black armored suit
+        ctx.fillRect(-11*s, -6*s, 7*s, 5*s);
+        ctx.fillRect(-11*s,  1*s, 7*s, 5*s);
+        // Main body
         ctx.fillStyle = '#1a1a44';
-        ctx.fillRect(-13, -10, 22, 20);
-        // Chest armor plates
+        ctx.fillRect(-11*s, -7*s, 18*s, 14*s);
+        // Chest plate
         ctx.fillStyle = '#222266';
-        ctx.fillRect(-10, -8, 14, 7);
-        ctx.fillRect(-10, 1, 14, 7);
-        // Shoulder cannon left
-        ctx.fillStyle = '#0a0a33';
-        ctx.fillRect(-14, -8, 5, 6);
-        ctx.fillRect(-14, 2, 5, 6);
-        // Main weapon arm / barrel
+        ctx.fillRect(-9*s, -6*s, 13*s, 5*s);
+        ctx.fillRect(-9*s,  1*s, 13*s, 5*s);
+        // Weapon arm
         ctx.fillStyle = '#111111';
-        ctx.fillRect(8, -2, 12, 4);    // main barrel
-        ctx.fillRect(8, -5, 6, 3);     // upper barrel
+        ctx.fillRect(6*s, -2*s, 3*s, 4*s);
+        ctx.fillRect(8*s, -1*s, 10*s, 3*s);
         ctx.fillStyle = '#ff4400';
-        ctx.fillRect(18, -1, 3, 2);    // muzzle glow
-        // Head unit — dark with glowing visor
+        ctx.fillRect(17*s, -1*s, 2*s, 2*s);  // muzzle glow
+        // Head — dark with cyan visor
         ctx.fillStyle = '#1a1a44';
         ctx.beginPath();
-        ctx.arc(3, 0, 8, 0, Math.PI * 2);
+        ctx.arc(3*s, 0, 8*s, 0, Math.PI * 2);
         ctx.fill();
-        // Visor — glowing cyan
+        ctx.fillStyle = '#0a0a33';
+        ctx.beginPath();
+        ctx.arc(3*s, 0, 8*s, -Math.PI, 0);
+        ctx.fill();
         ctx.fillStyle = '#00ccff';
-        ctx.fillRect(-2, -3, 10, 6);
-        ctx.fillStyle = '#004466';
-        ctx.fillRect(-1, -2, 8, 4);
+        ctx.fillRect(-2*s, -3*s, 10*s, 5*s);
+        ctx.fillStyle = '#003344';
+        ctx.fillRect(-1*s, -2*s, 8*s, 3*s);
         ctx.fillStyle = '#00eeff';
-        ctx.fillRect(0, -1, 6, 2);
-        // Top antenna
+        ctx.fillRect(0*s, -1*s, 6*s, 2*s);
+        // Antenna
         ctx.fillStyle = '#ff4400';
-        ctx.fillRect(1, -10, 2, 4);
-        ctx.fillRect(0, -12, 4, 3);
+        ctx.fillRect(1*s, -12*s, 2*s, 5*s);
+        ctx.fillRect(-1*s, -13*s, 6*s, 3*s);
         break;
       }
     }
@@ -248,7 +202,7 @@ CB.Sprites = {
     ctx.restore();
   },
 
-  // Animated fire particles around a burning enemy
+  // ── fire effect ───────────────────────────────────────────────────────────
   drawFireEffect(ctx, cx, cy, age) {
     const t = age * 8;
     ctx.save();

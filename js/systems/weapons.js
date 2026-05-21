@@ -107,31 +107,33 @@ CB.Weapons = {
       : 1;
     dmg = Math.ceil(dmg * damageMult);
 
-    let speed = 400;
-    let range = 350;
+    // Slow, visible bullets — matching original Cyberdogs feel (dodgeable)
+    let speed = 180;
+    let range = 300;
     let projKind = CB.PK.BULLET_YELLOW;
     let projW = 4, projH = 4;
 
     if (owner.subtype === 'boss') {
       if (owner.ai.weaponMode === 'rocket') {
-        speed = 280; range = 600; projKind = CB.PK.ROCKET_PROJ;
+        speed = 140; range = 500; projKind = CB.PK.ROCKET_PROJ;
         projW = 6; projH = 10; dmg = Math.ceil(60 * damageMult);
-        // splash
         CB.Weapons._spawnEnemyProjectile(owner, angle, dmg, speed, range, projKind, projW, projH, 48, 30, world);
         return true;
       } else {
-        // MG burst
-        speed = 500; range = 400; projKind = CB.PK.BULLET_MG;
+        // MG burst — slightly faster than pistol
+        speed = 240; range = 320; projKind = CB.PK.BULLET_MG;
         projW = 3; projH = 3; dmg = Math.ceil(12 * damageMult);
       }
     } else if (owner.subtype === 'sniper') {
-      speed = 900; range = 450; projKind = CB.PK.SNIPER_BEAM;
+      // Sniper is faster but still visible
+      speed = 350; range = 420; projKind = CB.PK.SNIPER_BEAM;
       projW = 2; projH = 16;
     } else if (owner.subtype === 'heavy') {
-      speed = 500; range = 350; projKind = CB.PK.BULLET_MG;
+      speed = 220; range = 300; projKind = CB.PK.BULLET_MG;
       projW = 3; projH = 3;
     } else {
-      speed = 450; range = 280; projKind = CB.PK.BULLET_YELLOW;
+      // Grunt — slowest, very dodgeable
+      speed = 180; range = 260; projKind = CB.PK.BULLET_YELLOW;
     }
 
     CB.Weapons._spawnEnemyProjectile(owner, angle, dmg, speed, range, projKind, projW, projH, 0, 0, world);
